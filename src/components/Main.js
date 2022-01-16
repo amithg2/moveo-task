@@ -18,8 +18,10 @@ const Main = ({ classes }) => {
   const MainAudioPlayer = useRef(); //there is one main audio player that controll all the real players
   const progressBar = useRef();
   const animationRef = useRef();
+  const lineRef = useRef();
 
-  useEffect(() => { // this function is creating the input bar based on the duration of the Main Audio player
+  useEffect(() => {
+    // this function is creating the input bar based on the duration of the Main Audio player
     const seconds = Math.floor(MainAudioPlayer.current.duration);
     progressBar.current.max = seconds;
   }, [
@@ -27,48 +29,56 @@ const Main = ({ classes }) => {
     MainAudioPlayer?.current?.readyState,
   ]);
 
-  const togglePlayPause = () => { //handle the play and pause
+  const togglePlayPause = () => {
+    //handle the play and pause
     setIsPlaying(!isPlaying);
     if (!isPlaying) {
       MainAudioPlayer.current.play();
-      animationRef.current = requestAnimationFrame(whilePlaying); 
+      animationRef.current = requestAnimationFrame(whilePlaying);
     } else {
       MainAudioPlayer.current.pause();
       cancelAnimationFrame(animationRef.current);
     }
   };
 
-  const whilePlaying = () => { //updating the current time while audio is playing
+  const whilePlaying = () => {
+    //updating the current time while audio is playing
     progressBar.current.value = MainAudioPlayer.current.currentTime;
     changePlayerCurrentTime();
     animationRef.current = requestAnimationFrame(whilePlaying);
   };
 
-  const changeRange = () => {  //updating the current time when when the slider is changing
+  const changeRange = () => {
+    //updating the current time when when the slider is changing
     MainAudioPlayer.current.currentTime = progressBar.current.value;
     setChangedTime(progressBar.current.value);
     changePlayerCurrentTime();
   };
 
-  const changePlayerCurrentTime = () => { 
+  const changePlayerCurrentTime = () => {
     setCurrentTime(progressBar.current.value);
   };
   const handleStopAll = () => {
-    setStopAll(true);
     MainAudioPlayer.current.pause();
     MainAudioPlayer.current.currentTime = 0;
+    setStopAll(true);
     setIsPlaying(false);
 
-    setTimeout(() => { 
+    setTimeout(() => {
       setStopAll(false);
     }, 500);
   };
 
   const handleEnding = () => {
     setIsPlaying(false);
+    setStopAll(true);
+    setTimeout(() => {
+      setStopAll(false);
+    }, 500);
   };
 
-  const makeLine = (line) => { //meking the line 
+  const makeLine = (line) => {
+    //meking the line
     let linePos = (line / 17) * 100;
     if (linePos > 98) linePos = 98;
     return `${linePos - 0.5}%`;
@@ -99,16 +109,21 @@ const Main = ({ classes }) => {
       <Header />
       <div className={classes.Main}>
         <div className={classes.lineContainer}>
-          <div className={classes.line} style={{ left: makeLine(currentTime) }}>
-            <div
-              className={classes.circle}
-              style={{ left: makeLine(currentTime) }}
-            ></div>
+          <div
+            ref={lineRef}
+            className={`${classes.line} ${!stopAll ? classes.transition : ""} `}
+            style={{ left: makeLine(currentTime) }}
+          >
+            <div className={classes.circle}></div>
           </div>
         </div>
         <div className={classes.inputContainer}>
           <div className={classes.blockTitle}></div>
           <input
+            onMouseDown={() => (lineRef.current.style.transition = "none")}
+            onMouseUp={() =>
+              (lineRef.current.style.transition = "1000ms linear")
+            }
             type="range"
             defaultValue="0"
             ref={progressBar}

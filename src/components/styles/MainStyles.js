@@ -57,13 +57,15 @@ const styles = {
     position: "absolute",
     margin: "0 6px",
     zIndex: "20",
-    transition: "1000ms linear",
   },
   circle: {
     borderTop: "1.5em solid rgba(217, 26, 29, 0.8)",
     borderRight: "1.5em solid transparent",
     zIndex: "30",
   },
+  transition :{
+    transition: "1000ms linear",
+  }
 };
 
 export default styles;
