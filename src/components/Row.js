@@ -58,7 +58,8 @@ function Row(props) {
   }, [stopAll]);
 
   const handleEnded = () => {
-    audioPlayer.current.currentTime = 0.1;
+      audioPlayer.current.pause();
+      audioPlayer.current.currentTime = 0;
   };
   return (
     <div
